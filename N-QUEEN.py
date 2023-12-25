@@ -1,10 +1,3 @@
-problem = "go to l"
-initial_state = {"go to l": 'A'}
-goal_test = {"go to l": 'L'}
-state_space = {'A': ['B', 'C'], 'B': ['D', 'E'], 'C': ['F', 'G'], 'D': ['H', 'J'], 'E': [], 'F': ['I', 'K'],
-               'G': ['L', 'M'], 'H': [], 'J': [], 'I': [], 'K': [], 'L': [], 'M': []}
-
-
 class Node:
 
     def __init__(self, state, parent=None, depth=0, action=None):
@@ -48,8 +41,8 @@ def remove_first(queue):
 
 def expand(node):
     successors = []
-    stat_space_node = state_space[node.STATE]
-    for result in stat_space_node:
+
+    for result in successor_fin(node.STATE):
         s = Node(node)
         s.STATE = result
         s.PARENT_NODE = node
@@ -67,14 +60,44 @@ def tree_search(problem, fringe):
         if goal_test[problem] == node.STATE:
             return node.path()
         success = expand(node)
-        for i in success:
-            if goal_test[problem] == i.STATE:
-                return node.path()
+
         fringe = insert_all(success, fringe)
 
 
-def run():
-    print('solution path\nState Depth')
+def successor_fin(state):
+    global N
+    if state[-1] is not None:
+        return ['solution']
+    else:
+        def place(col, row):
+            new = state[:]
+            new[col] = row
+            return new
+            print(new)
+    col = state.index(None)
+    return [place(col, row) for row in range(N) if not conflicted(state, row, col)]
+
+
+def conflicted(state, row, col):
+    for c in range(col):
+        if conflict(row, col, state[c], c):
+            return True
+    return False
+
+
+def conflict(row1, col1, row2, col2):
+    return (row1 == row2 or col1 == col2 or row1 - col1 == row2 - col2 or row1 + col1 == row2 + col2)
+
+
+problem = 'N Queens'
+goal_test = {'N Queens': 'solution'}
+initial_state = {}
+
+
+def run(n):
+    global N, initial_state
+    N = n
+    initial_state = {'N Queens': [None] * n}
     for node in tree_search(problem, []):
         node.display()
-run()
+run(4)
